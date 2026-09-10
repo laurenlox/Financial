@@ -1,0 +1,465 @@
+<title>Lox Financial Pulse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: light;
+    --page:#f9f9f7;
+    --surface:#fcfcfb;
+    --surface-raised:#ffffff;
+    --ink:#0b0b0b;
+    --ink-secondary:#52514e;
+    --ink-muted:#898781;
+    --gridline:#e1e0d9;
+    --baseline:#c3c2b7;
+    --border:rgba(11,11,11,0.10);
+    --accent:#2a78d6;
+    --accent-soft:#e8f0fb;
+    --cat-1:#2a78d6;
+    --cat-2:#eb6834;
+    --cat-3:#1baf7a;
+    --good:#0ca30c;
+    --good-soft:#e6f6e6;
+    --warning:#fab219;
+    --warning-soft:#fef3dc;
+    --serious:#ec835a;
+    --serious-soft:#fce8e0;
+    --critical:#d03b3b;
+    --critical-soft:#fbe6e6;
+    --font-ui: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme: dark;
+      --page:#0d0d0d;
+      --surface:#1a1a19;
+      --surface-raised:#221f1d;
+      --ink:#ffffff;
+      --ink-secondary:#c3c2b7;
+      --ink-muted:#8f8d87;
+      --gridline:#2c2c2a;
+      --baseline:#383835;
+      --border:rgba(255,255,255,0.12);
+      --accent:#3987e5;
+      --accent-soft:#152134;
+      --cat-1:#3987e5;
+      --cat-2:#d95926;
+      --cat-3:#199e70;
+      --good-soft:#0f2013;
+      --warning-soft:#2b2210;
+      --serious-soft:#2c1a13;
+      --critical-soft:#2c1414;
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --page:#0d0d0d;
+    --surface:#1a1a19;
+    --surface-raised:#221f1d;
+    --ink:#ffffff;
+    --ink-secondary:#c3c2b7;
+    --ink-muted:#8f8d87;
+    --gridline:#2c2c2a;
+    --baseline:#383835;
+    --border:rgba(255,255,255,0.12);
+    --accent:#3987e5;
+    --accent-soft:#152134;
+    --cat-1:#3987e5;
+    --cat-2:#d95926;
+    --cat-3:#199e70;
+    --good-soft:#0f2013;
+    --warning-soft:#2b2210;
+    --serious-soft:#2c1a13;
+    --critical-soft:#2c1414;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--page);
+    color:var(--ink);
+    font-family:var(--font-ui);
+    padding:0 16px;
+  }
+  .wrap{
+    max-width:920px;
+    margin:0 auto;
+    padding-block:28px 56px;
+    display:flex;
+    flex-direction:column;
+    gap:28px;
+  }
+  h1,h2,h3{text-wrap:balance; margin:0;}
+  .num{font-variant-numeric:tabular-nums;}
+
+  /* Masthead */
+  .masthead{display:flex; flex-direction:column; gap:6px;}
+  .eyebrow{
+    font:600 12px/1 var(--font-mono);
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--accent);
+  }
+  .masthead h1{font-size:clamp(26px,4vw,34px); font-weight:700; letter-spacing:-.01em;}
+  .masthead .meta{color:var(--ink-secondary); font-size:14px;}
+
+  /* Banner */
+  .banner{
+    background:var(--critical-soft);
+    border:1px solid var(--critical);
+    border-radius:10px;
+    padding:16px 18px;
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+  }
+  .banner .dot{
+    flex:none; width:10px; height:10px; border-radius:50%;
+    background:var(--critical); margin-top:6px;
+  }
+  .banner strong{color:var(--critical);}
+  .banner p{margin:4px 0 0; font-size:14.5px; line-height:1.5; color:var(--ink);}
+
+  section{display:flex; flex-direction:column; gap:14px;}
+  .section-head{display:flex; flex-direction:column; gap:2px;}
+  .section-head h2{font-size:18px; font-weight:700;}
+  .section-head .sub{color:var(--ink-secondary); font-size:13.5px;}
+
+  /* Stat tiles */
+  .kpi-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(150px,1fr));
+    gap:1px;
+    background:var(--border);
+    border:1px solid var(--border);
+    border-radius:12px;
+    overflow:hidden;
+  }
+  .kpi{
+    background:var(--surface-raised);
+    padding:16px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .kpi .label{font-size:12px; color:var(--ink-muted); text-transform:uppercase; letter-spacing:.05em;}
+  .kpi .value{font-size:23px; font-weight:700; letter-spacing:-.01em;}
+  .kpi .value.critical{color:var(--critical);}
+  .kpi .value.good{color:var(--good);}
+  .kpi .foot{font-size:12px; color:var(--ink-secondary);}
+  .chip{
+    display:inline-flex; align-items:center; gap:5px;
+    font:600 11px/1 var(--font-mono);
+    padding:4px 8px; border-radius:99px; width:fit-content;
+    text-transform:uppercase; letter-spacing:.04em;
+  }
+  .chip.critical{background:var(--critical-soft); color:var(--critical);}
+  .chip.good{background:var(--good-soft); color:var(--good);}
+  .chip.warning{background:var(--warning-soft); color:#8a5a00;}
+  .chip.serious{background:var(--serious-soft); color:#a1441c;}
+  :root:not([data-theme="light"]) .chip.warning{color:var(--warning);}
+  :root:not([data-theme="light"]) .chip.serious{color:var(--serious);}
+  :root[data-theme="dark"] .chip.warning{color:var(--warning);}
+  :root[data-theme="dark"] .chip.serious{color:var(--serious);}
+
+  /* Card */
+  .card{
+    background:var(--surface-raised);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:20px;
+  }
+
+  /* Stacked bar (CRA) */
+  .stackbar{display:flex; height:28px; border-radius:6px; overflow:hidden; border:1px solid var(--border);}
+  .stackbar .seg{height:100%;}
+  .legend{display:flex; flex-wrap:wrap; gap:14px; margin-top:12px; font-size:13px;}
+  .legend .item{display:flex; align-items:center; gap:7px; color:var(--ink-secondary);}
+  .legend .swatch{width:11px; height:11px; border-radius:3px; flex:none;}
+
+  table{width:100%; border-collapse:collapse; font-size:14px;}
+  th{
+    text-align:left; font-size:11.5px; text-transform:uppercase; letter-spacing:.04em;
+    color:var(--ink-muted); font-weight:600; padding:8px 10px;
+    border-bottom:1px solid var(--gridline);
+  }
+  td{padding:10px 10px; border-bottom:1px solid var(--gridline); color:var(--ink);}
+  tr:last-child td{border-bottom:none;}
+  td.amt, th.amt{text-align:right; font-family:var(--font-mono); font-variant-numeric:tabular-nums;}
+  .table-wrap{overflow-x:auto;}
+
+  /* Horizontal bar chart (expenses) */
+  .barchart{display:flex; flex-direction:column; gap:10px;}
+  .bar-row{display:grid; grid-template-columns:150px 1fr 84px; align-items:center; gap:10px;}
+  .bar-row .name{font-size:13.5px; color:var(--ink-secondary);}
+  .bar-track{background:var(--gridline); border-radius:5px; height:16px; position:relative;}
+  .bar-fill{background:var(--accent); height:100%; border-radius:5px 4px 4px 5px; min-width:3px;}
+  .bar-row .val{font:600 13px/1 var(--font-mono); text-align:right; font-variant-numeric:tabular-nums;}
+
+  /* Meter (payroll ratio) */
+  .meter-wrap{position:relative; padding-top:6px;}
+  .meter-track{background:var(--gridline); height:22px; border-radius:6px; position:relative; overflow:visible;}
+  .meter-fill{background:var(--good); height:100%; border-radius:6px 4px 4px 6px;}
+  .meter-target{
+    position:absolute; top:-6px; bottom:-6px; width:2px; background:var(--ink);
+  }
+  .meter-target .tag{
+    position:absolute; top:-20px; left:50%; transform:translateX(-50%);
+    font:600 11px/1 var(--font-mono); white-space:nowrap; color:var(--ink-secondary);
+  }
+  .meter-labels{display:flex; justify-content:space-between; margin-top:8px; font-size:12px; color:var(--ink-muted);}
+
+  /* Action checklist */
+  .actions{display:grid; grid-template-columns:repeat(auto-fit, minmax(230px,1fr)); gap:14px;}
+  .action-col{background:var(--surface-raised); border:1px solid var(--border); border-radius:12px; padding:16px;}
+  .action-col h3{font-size:13px; text-transform:uppercase; letter-spacing:.05em; color:var(--accent); margin-bottom:10px;}
+  .action-col ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px;}
+  .action-col li{display:flex; gap:9px; font-size:13.5px; line-height:1.4; color:var(--ink);}
+  .action-col li::before{
+    content:""; flex:none; width:14px; height:14px; margin-top:2px;
+    border:1.5px solid var(--ink-muted); border-radius:4px;
+  }
+
+  footer{
+    border-top:1px solid var(--gridline);
+    padding-top:16px;
+    display:flex; flex-wrap:wrap; gap:6px 16px;
+    justify-content:space-between;
+    font-size:12.5px; color:var(--ink-muted);
+  }
+  .note{font-size:12.5px; color:var(--ink-muted); line-height:1.5;}
+
+  @media (max-width:520px){
+    .bar-row{grid-template-columns:1fr; gap:4px;}
+    .bar-row .val{text-align:left;}
+  }
+</style>
+
+<div class="wrap">
+
+  <div class="masthead">
+    <span class="eyebrow">Lox &middot; Financial Pulse</span>
+    <h1>Where the money actually went</h1>
+    <div class="meta">Live from QuickBooks &middot; Data pulled Sep 10, 2026 &middot; Refreshes every Monday morning</div>
+  </div>
+
+  <div class="banner">
+    <div class="dot"></div>
+    <div>
+      <strong>CRA liability: roughly $601,700</strong> across corporate tax, HST, and payroll remittances &mdash; including $109,060 owing for 2025 and $48,973 in accrued interest on the payroll side.
+      <p>Payroll source deductions are trust funds. This is an accountant or insolvency-advisor conversation this week, not something a dashboard resolves on its own.</p>
+    </div>
+  </div>
+
+  <section>
+    <div class="section-head">
+      <h2>The headline numbers</h2>
+      <div class="sub">Year to date, Jan 1 &ndash; Sep 10, 2026</div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi">
+        <span class="label">Revenue YTD</span>
+        <span class="value num">$826,729</span>
+        <span class="foot">70.5% gross margin</span>
+      </div>
+      <div class="kpi">
+        <span class="label">Net Income YTD</span>
+        <span class="value critical num">&minus;$18,731</span>
+        <span class="chip critical">Loss</span>
+      </div>
+      <div class="kpi">
+        <span class="label">Payroll % of Revenue</span>
+        <span class="value good num">31.6%</span>
+        <span class="chip good">Under 45% target</span>
+      </div>
+      <div class="kpi">
+        <span class="label">Cash on Hand</span>
+        <span class="value num">$111,453</span>
+        <span class="foot">Across all bank accounts</span>
+      </div>
+      <div class="kpi">
+        <span class="label">Current Ratio</span>
+        <span class="value critical num">0.36</span>
+        <span class="foot">Healthy benchmark: 1.5&ndash;2.0</span>
+      </div>
+      <div class="kpi">
+        <span class="label">Vendor Bills Overdue</span>
+        <span class="value critical num">$42,212</span>
+        <span class="chip critical">100% of A/P</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>CRA liability breakdown</h2>
+      <div class="sub">Total owing: $601,748, pulled from current balance sheet liability accounts</div>
+    </div>
+    <div class="card">
+      <div class="stackbar">
+        <div class="seg" style="width:7.6%; background:var(--cat-1);"></div>
+        <div class="seg" style="width:37.0%; background:var(--cat-2);"></div>
+        <div class="seg" style="width:55.4%; background:var(--cat-3);"></div>
+      </div>
+      <div class="legend">
+        <span class="item"><span class="swatch" style="background:var(--cat-1);"></span>Corporate tax (2023&ndash;2025) &middot; $45,927</span>
+        <span class="item"><span class="swatch" style="background:var(--cat-2);"></span>GST/HST payable &middot; $222,495</span>
+        <span class="item"><span class="swatch" style="background:var(--cat-3);"></span>Payroll remittances + interest &middot; $333,326</span>
+      </div>
+      <p class="note" style="margin-top:16px;">Some HST sub-balances go back to 2022, tracked as separate year-end entries rather than one reconciled account. Worth a cleanup pass with your accountant so this number is precise, not just directionally right.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Where the loss is coming from</h2>
+      <div class="sub">Top non-payroll operating expenses, YTD &middot; payroll is healthy, this isn't a wage problem</div>
+    </div>
+    <div class="card">
+      <div class="barchart">
+        <div class="bar-row">
+          <span class="name">Marketing</span>
+          <div class="bar-track"><div class="bar-fill" style="width:100%;"></div></div>
+          <span class="val">$62,139</span>
+        </div>
+        <div class="bar-row">
+          <span class="name">Education & training</span>
+          <div class="bar-track"><div class="bar-fill" style="width:93.5%;"></div></div>
+          <span class="val">$58,127</span>
+        </div>
+        <div class="bar-row">
+          <span class="name">Salon rent</span>
+          <div class="bar-track"><div class="bar-fill" style="width:87.4%;"></div></div>
+          <span class="val">$54,343</span>
+        </div>
+        <div class="bar-row">
+          <span class="name">Professional & legal</span>
+          <div class="bar-track"><div class="bar-fill" style="width:45.0%;"></div></div>
+          <span class="val">$27,958</span>
+        </div>
+        <div class="bar-row">
+          <span class="name">Technology</span>
+          <div class="bar-track"><div class="bar-fill" style="width:29.5%;"></div></div>
+          <span class="val">$18,347</span>
+        </div>
+        <div class="bar-row">
+          <span class="name">Office expenses</span>
+          <div class="bar-track"><div class="bar-fill" style="width:29.3%;"></div></div>
+          <span class="val">$18,230</span>
+        </div>
+        <div class="bar-row">
+          <span class="name">Merchant fees</span>
+          <div class="bar-track"><div class="bar-fill" style="width:21.2%;"></div></div>
+          <span class="val">$13,156</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Payroll health</h2>
+      <div class="sub">Your ceiling is 45% of revenue. You're well inside it.</div>
+    </div>
+    <div class="card">
+      <div class="meter-wrap">
+        <div class="meter-track">
+          <div class="meter-fill" style="width:70.2%;"></div>
+          <div class="meter-target" style="left:100%;">
+            <span class="tag">45% ceiling</span>
+          </div>
+        </div>
+        <div class="meter-labels">
+          <span>0%</span>
+          <span style="font-weight:600; color:var(--good);">31.6% actual</span>
+          <span>64% scale max</span>
+        </div>
+      </div>
+      <p class="note" style="margin-top:14px;">Total payroll (service providers, support staff, benefits) is $261,144, or 31.6% of revenue. Don't touch your team's pay to fix the cash problem &mdash; it isn't where the leak is.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Who's waiting on you</h2>
+      <div class="sub">Accounts payable aging &middot; 17 vendors, every dollar overdue</div>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Aging bucket</th>
+              <th class="amt">Amount</th>
+              <th>Share</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1&ndash;30 days</td><td class="amt">$10,613</td><td><span class="chip warning">25%</span></td></tr>
+            <tr><td>31&ndash;60 days</td><td class="amt">$12,305</td><td><span class="chip serious">29%</span></td></tr>
+            <tr><td>61&ndash;90 days</td><td class="amt">$4,490</td><td><span class="chip serious">11%</span></td></tr>
+            <tr><td>91+ days</td><td class="amt">$14,804</td><td><span class="chip critical">35%</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-wrap" style="margin-top:18px;">
+        <table>
+          <thead>
+            <tr>
+              <th>Vendor</th>
+              <th class="amt">Owed</th>
+              <th>Oldest bucket</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Distribution Aura (colour/product supplier)</td><td class="amt">$33,122</td><td><span class="chip critical">91+ days</span></td></tr>
+            <tr><td>Maison Bleu Design</td><td class="amt">$3,258</td><td><span class="chip warning">1&ndash;30 days</span></td></tr>
+            <tr><td>Betty He</td><td class="amt">$2,685</td><td><span class="chip serious">61&ndash;90 days</span></td></tr>
+            <tr><td>Studio 85 Consulting</td><td class="amt">$1,395</td><td><span class="chip warning">1&ndash;30 days</span></td></tr>
+            <tr><td>Halifax Chamber of Commerce</td><td class="amt">$662</td><td><span class="chip serious">61&ndash;90 days</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note" style="margin-top:14px;">Distribution Aura alone is $14,657 past 90 days. A payment plan call there protects your colour supply before it becomes a service problem.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>What to do, in order</h2>
+    </div>
+    <div class="actions">
+      <div class="action-col">
+        <h3>This week</h3>
+        <ul>
+          <li>Call your accountant (or an insolvency advisor) about a CRA payment arrangement, payroll remittances first</li>
+          <li>Call Distribution Aura re: the $14,657 that's 90+ days overdue</li>
+        </ul>
+      </div>
+      <div class="action-col">
+        <h3>This month</h3>
+        <ul>
+          <li>Line-item audit of Education/Coaching ($58,127) and Professional & Legal ($27,958)</li>
+          <li>Freeze new discretionary spend until back to breakeven</li>
+          <li>Set up a payment cadence for the other 16 overdue vendors</li>
+        </ul>
+      </div>
+      <div class="action-col">
+        <h3>Ongoing</h3>
+        <ul>
+          <li>Watch this dashboard weekly, Monday mornings</li>
+          <li>Flag it immediately if the CRA total grows or payroll % crosses 45%</li>
+          <li>Re-check A/P aging every refresh, not just at month end</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Source: QuickBooks (company: Lox), pulled live via connected accounting data</span>
+    <span>Next refresh: Monday</span>
+  </footer>
+
+</div>
